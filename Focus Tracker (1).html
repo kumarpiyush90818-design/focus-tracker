@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Focus Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:#f1f2f6;--card:#fff;--tx:#0f172a;--mut:#64748b;--ac:#ff5a0a;--ac2:#ff7a1a;--ok:#16a34a;--bd:#e5e7ef;--bad:#dc2626;--mid:#f59e0b;--onc:#fff;--sh:0 2px 10px rgba(15,23,42,.06);--grad:linear-gradient(135deg,#ff5a0a,#ff7a1a);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1118;--card:#171b25;--tx:#f1f3f7;--mut:#94a0b4;--bd:#262c3a;--ok:#4ade80;--bad:#f87171;--sh:none}}
+:root[data-theme="dark"]{--bg:#0e1118;--card:#171b25;--tx:#f1f3f7;--mut:#94a0b4;--bd:#262c3a;--ok:#4ade80;--bad:#f87171;--sh:none}
+*{box-sizing:border-box}
+body{margin:0 auto;background:var(--bg);color:var(--tx);font-family:"DM Sans",Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:560px;padding:0 0 32px;-webkit-font-smoothing:antialiased;line-height:1.4}
+.hero{background:linear-gradient(135deg,#0d0d0d 0%,#3a1a0c 55%,#8a3a12 100%);color:#fff;padding:22px 20px 52px;border-radius:0 0 28px 28px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);border-radius:999px;padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.12em}
+.pill i{width:10px;height:10px;border-radius:50%;background:var(--grad)}
+h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:16px 0 4px}
+.hero .sub{color:rgba(255,255,255,.75);font-size:15px;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-bottom:16px}
+h2{font-size:15px;font-weight:700;margin:0 0 6px}
+.tabs{display:flex;gap:4px;margin:-28px 16px 14px;padding:8px;background:var(--card);border-radius:22px;box-shadow:0 10px 28px rgba(0,0,0,.18);position:relative}
+.tabs button{flex:1;padding:12px 2px;border:0;background:transparent;color:var(--mut);border-radius:999px;font:700 14px inherit;font-family:inherit}
+.tabs button{font-size:12.5px!important}
+.tabs button.on{background:var(--grad);color:#fff;box-shadow:0 6px 14px rgba(255,90,10,.35)}
+section{margin:0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.bar{height:8px;background:var(--bd);border-radius:8px;overflow:hidden;margin:12px 0 2px}
+.bar i{display:block;height:100%;background:var(--grad);width:0;border-radius:8px;transition:width .3s}
+label.it{display:flex;gap:12px;align-items:flex-start;padding:12px 2px;border-bottom:1px solid var(--bd);font-size:15px;font-weight:500}
+label.it:last-child{border-bottom:0}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;margin:0;border:2px solid var(--mut);border-radius:7px;background:transparent;position:relative}
+input[type=checkbox]:checked{background:var(--grad);border-color:var(--ac)}
+input[type=checkbox]:checked::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+label.it .t{color:var(--mut);font-size:12px;font-weight:500;display:block;margin-top:2px}
+label.it.done span.x{text-decoration:line-through;color:var(--mut)}
+.row{display:flex;gap:8px;margin-bottom:10px}
+.row input{flex:1;min-width:0;padding:14px;border:1.5px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);font:500 15px inherit;font-family:inherit}
+.row button{padding:14px 20px;border:0;border-radius:14px;background:var(--grad);color:#fff;font:700 15px inherit;font-family:inherit;box-shadow:0 6px 14px rgba(255,90,10,.3)}
+.del{border:0;background:transparent;color:var(--mut);padding:0 4px;margin-left:auto;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{padding:10px 16px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;font:700 13px inherit;font-family:inherit}
+.chip.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(255,90,10,.3)}
+.warn{border:1.5px solid var(--bad)}
+.warn button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--tx);padding:7px 0;font:500 14px inherit;font-family:inherit}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
+.cal .h{font-size:11px;font-weight:700;color:var(--mut);letter-spacing:.06em;padding-bottom:2px}
+.cal button{aspect-ratio:1;border:1.5px solid var(--bd);background:transparent;color:var(--tx);border-radius:12px;font:600 13px inherit;font-family:inherit;padding:0}
+.cal .ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.cal .part{background:var(--mid);color:#fff;border-color:var(--mid)}
+.cal .miss{background:var(--bad);color:#fff;border-color:var(--bad)}
+.cal .tdy{outline:2px solid var(--ac);outline-offset:2px}
+.cal .sel{box-shadow:0 0 0 2px var(--tx)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.nav button{padding:8px 16px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;font-size:16px}
+.leg{font-size:12px;color:var(--mut);margin-top:12px}
+.lg{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 4px 0 10px;vertical-align:-1px}
+.lg:first-child{margin-left:0}
+.lg.ok{background:var(--ok)}.lg.part{background:var(--mid)}.lg.miss{background:var(--bad)}
+.ch{border:1.5px solid var(--bd);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.ch.full{border-color:var(--ok)}
+.ch.full .chh b::after{content:"COMPLETE";background:var(--ok);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px;margin-left:8px;letter-spacing:.08em;vertical-align:2px}
+.chh{display:flex;align-items:center;font-size:15px}
+.qr{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-top:8px}
+.qb{padding:7px 11px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;margin-left:4px;font:700 13px inherit;font-family:inherit}
+.row select{flex:1;min-width:0;padding:14px;border:1.5px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);font:500 15px inherit;font-family:inherit}
+.tip{display:none}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="hero"><span class="pill" id="pl"><i></i>100 DAY PLAN</span><h1>Focus Tracker</h1><div class="sub" id="date"></div></div>
+<div class="tabs">
+<button data-t="aaj" class="on">Aaj</button>
+<button data-t="syl">Syllabus</button>
+<button data-t="cy">Diary</button>
+<button data-t="cal">Progress</button>
+<button data-t="bd">Body</button>
+</div>
+<section id="aaj"></section>
+<section id="syl" hidden></section>
+<section id="cy" hidden></section>
+<section id="cal" hidden></section>
+<section id="bd" hidden></section>
+<div class="tip">Ek-ek task karo. Bas aaj ka kaam khatam.</div>
+<script>
+var ROUTINE=[
+["Subah uthna (6 baje)","6:00"],
+["Fresh hona, tayaar hona","6:00 - 7:00"],
+["Library: Physics / Maths (mushkil subject pehle)","7:00 - 9:30"],
+["Library: Chemistry ya doosra subject","9:45 - 11:30"],
+["Ghar wapas, lunch, thoda rest","12:00 - 1:00"],
+["Duty","1:00 - 5:00"],
+["Free time / exercise / bahar","5:00 - 9:00"],
+["Ghar aana, khana","9:00"],
+["Padhai: aaj ka chapter revise + questions","9:30 - 10:30"],
+["Revision + doubts likhna","10:30 - 11:00"],
+["Kal ka plan likho, sona","11:00"]
+];
+var DEF={
+"Physics":["Electric Charges and Fields","Electrostatic Potential and Capacitance","Current Electricity","Moving Charges and Magnetism","Magnetism and Matter","Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics","Wave Optics","Dual Nature of Radiation and Matter","Atoms","Nuclei","Semiconductor Electronics"],
+"Chemistry":["Solutions","Electrochemistry","Chemical Kinetics","d- and f-Block Elements","Coordination Compounds","Haloalkanes and Haloarenes","Alcohols, Phenols and Ethers","Aldehydes, Ketones, Carboxylic Acids","Amines","Biomolecules"],
+"Maths":["Relations and Functions","Inverse Trigonometric Functions","Matrices","Determinants","Continuity and Differentiability","Applications of Derivatives","Integrals","Applications of Integrals","Differential Equations","Vector Algebra","Three Dimensional Geometry","Linear Programming","Probability"]
+};
+var BEDIT=false,MEDIT=false;
+var TT=[['Uthna, paani, fresh hona','6:00-6:10'],['Warm-up + mobility','6:10-6:25'],['Home workout','6:25-7:00'],['Breakfast','7:00-7:30'],['Snack (banana / 30g moongfali)','10:00'],['Lunch','12:00'],['Duty (paani + khana yaad rakho)','1:00-4:00'],['Shaam ka snack','4:30'],['Study / library (study tracker alag)','5:00-9:30'],['Dinner','9:30-10:00'],['Kal ka plan + sleep (7-9 ghante)','10:00-10:30']];
+var MEALS=[['Soya chunks 50g (dry)',170,26,'Breakfast 7:00'],['Besan 20g',80,4,'Breakfast 7:00'],['Atta 100g (roti/chilla)',340,12,'Breakfast 7:00'],['Banana (moongfali 30g ho to 170 kcal, 8g)',105,1,'Snack 10:00'],['Roti x2',200,7,'Lunch 12:00'],['Dal 1 katori',150,8,'Lunch 12:00'],['Sabzi 1 katori',80,2,'Lunch 12:00'],['Chawal 1 katori (pakka)',200,4,'Lunch 12:00'],['Banana / bhuna chana 30g',110,5,'Shaam snack 4:30'],['Roti x3',300,10,'Dinner 9:30'],['Dal 1 katori',150,8,'Dinner 9:30'],['Sabzi 1 katori',80,2,'Dinner 9:30']];
+var EXD={push:['Push-up','Incline/knee 3x6-8','Standard 3x8-12','Standard/decline 4x10-15'],squat:['Squats','Bodyweight 3x12','Slow (3 sec neeche) 3x15','Backpack squat 4x12-15'],lunge:['Lunges','Reverse lunge 2x8 /leg','Reverse lunge 3x10 /leg','Backpack lunge 3x12 /leg'],row:['Backpack rows','Halka bag 3x10','Bag 3x12','Bhaari bag 4x12'],bridge:['Glute bridge','3x12','3x15 (2 sec hold)','4x15'],plank:['Plank','3x20 sec','3x30 sec','3x40 sec']};
+var WA=['push','squat','row','bridge','plank'],WB=['push','lunge','row','bridge','plank'];
+var DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],TYN={A:'Full body A',B:'Full body B',M:'Halki walk + mobility',R:'Rest day'};
+function WL(t){return t==='A'?WA:t==='B'?WB:[]}
+function bbInit(){var b=S.bb=S.bb||{};b.times=b.times||TT.map(function(x){return x[1]});b.meals=b.meals||MEALS.map(function(x){return{n:x[0],k:x[1],p:x[2],g:x[3]}});b.tk=b.tk||2000;b.tp=b.tp||90;b.tw=b.tw||8;b.lv=b.lv||0;b.wd=b.wd||['R','A','R','B','R','A','M'];b.chk=b.chk||{};b.wl=b.wl||[];b.sum=b.sum||{};b.carry=b.carry||[]}
+function bdCalc(k){var b=S.bb,c=b.chk[k]||{},ty=b.wd[parse(k).getDay()],ex=WL(ty),r={nt:TT.length,nx:ex.length,nm:b.meals.length,wt:b.tw,dt:0,dx:0,dm:0,kcal:0,pro:0,w:c.w||0,ty:ty};
+TT.forEach(function(x,i){if(c['t'+i])r.dt++});ex.forEach(function(x,i){if(c['x'+i])r.dx++});b.meals.forEach(function(m,i){if(c['m'+i]){r.dm++;r.kcal+=+m.k||0;r.pro+=+m.p||0}});
+var tot=r.nt+r.nx+r.nm+r.wt,dn=r.dt+r.dx+r.dm+Math.min(r.w,r.wt);r.pct=tot?Math.round(dn*100/tot):0;return r}
+function bdTick(id,on,l){return '<label class="it'+(on?' done':'')+'"><input type="checkbox" id="'+id+'"'+(on?' checked':'')+'><span class="x">'+l+'</span></label>'}
+function wChart(){var w=S.bb.wl.slice(-16);if(w.length<2)return '<div class="sub" style="margin:8px 0">Chart ke liye kam se kam 2 weight entry chahiye.</div>';var v=w.map(function(x){return x.w}),mn=Math.min.apply(0,v)-1,mx=Math.max.apply(0,v)+1,pt=w.map(function(x,i){return [10+i*280/(w.length-1),100-(x.w-mn)*90/(mx-mn)]});
+return '<svg viewBox="0 0 300 110" style="width:100%;margin-top:8px"><polyline points="'+pt.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1)}).join(' ')+'" fill="none" stroke="var(--ac)" stroke-width="2.5"/>'+pt.map(function(q){return '<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="3.5" fill="var(--ac)"/>'}).join('')+'</svg><div class="sub" style="margin:4px 0 8px">'+v[0]+' kg \u2192 '+v[v.length-1]+' kg ('+(v[v.length-1]-v[0]>=0?'+':'')+(v[v.length-1]-v[0]).toFixed(1)+' kg)</div>'}
+function bdWeek(){var b=S.bb,d=parse(T),n=0,sp=0,sk=0,sr=0,sw=0,wk=0;for(var i=0;i<7;i++){var s=b.sum[key(d)];if(s){n++;sp+=s.p;sk+=s.k;sr+=s.pr;sw+=s.w;if(s.nx&&s.x===s.nx)wk++}d.setDate(d.getDate()-1)}
+if(!n)return '';var tips=[];if(sr/n<b.tp*0.8)tips.push('Protein wale items (soya, dal, chana) roz tick karne par dhyan do.');if(sk/n<b.tk*0.8)tips.push('Khana kam tick hua, poore meals time par lo.');if(sw/n<b.tw*0.8)tips.push('Paani zyada piyo.');if(wk<2)tips.push('Kam se kam 2-3 workout poore karo.');if(!tips.length)tips.push('Isi routine par tike raho, level tabhi badhao jab sets aaraam se hon.');
+return '<div class="card"><h2>Weekly summary</h2><div style="font-size:14px;line-height:1.7">Record hue din: <b>'+n+'/7</b><br>Average completion: <b>'+Math.round(sp/n)+'%</b><br>Poore workout: <b>'+wk+'</b><br>Tick kiya khana (avg): <b>'+Math.round(sk/n)+' kcal, '+Math.round(sr/n)+'g protein</b><br>Paani (avg): <b>'+(sw/n).toFixed(1)+' glass</b></div><div class="sub" style="margin:8px 0 0">Agle hafte ka focus: '+tips.slice(0,3).join(' ')+'</div></div>'}
+function bdHist(){var b=S.bb,d=parse(T),h='',n=0;for(var i=1;i<=14;i++){d.setDate(d.getDate()-1);var k=key(d),s=b.sum[k];if(!s)continue;var c=b.chk[k]||{},eat=[];b.meals.forEach(function(m,j){if(c['m'+j])eat.push(m.n.split(' (')[0])});n++;h+='<div style="padding:9px 0;border-top:1px solid var(--bd);font-size:13px"><b>'+fmt(k)+'</b><div class="sub" style="margin:2px 0">Completion '+s.p+'% \u00b7 '+s.k+' kcal \u00b7 '+s.pr+'g protein \u00b7 Paani '+s.w+' glass \u00b7 Workout '+(s.nx?s.x+'/'+s.nx:'rest')+'</div>'+(eat.length?'<div>Khaya: '+esc(eat.join(', '))+'</div>':'<div class="sub" style="margin:0">Khana tick nahi hua</div>')+'</div>'}
+return '<div class="card"><h2>Pichle din ka record</h2>'+(n?h:'<div class="sub" style="margin:0">Abhi sirf aaj ka record hai. Kal se yahan pichle din dikhenge.</div>')+'</div>'}
+function renderBd(){var b=S.bb,c=b.chk[T]=b.chk[T]||{},r=bdCalc(T),lv=b.lv,ty=r.ty;
+b.sum[T]={p:r.pct,k:Math.round(r.kcal),pr:Math.round(r.pro),w:r.w,x:r.dx,nx:r.nx};
+var h='<div class="card"><h2>Aaj ka completion: '+r.pct+'%</h2><div class="bar"><i style="width:'+r.pct+'%"></i></div><div class="sub" style="margin:8px 0 0">Timetable '+r.dt+'/'+r.nt+' \u00b7 Workout '+r.dx+'/'+r.nx+' \u00b7 Khana '+r.dm+'/'+r.nm+' \u00b7 Paani '+r.w+'/'+r.wt+'</div><div class="sub" style="margin:6px 0 0">Ye sirf tumhare tick ka hisaab hai. Muscle roz ke khane, workout, neend aur waqt se banta hai, tick se nahi.</div></div>';
+h+='<div class="card"><h2>Miss hua? Recovery</h2>';
+b.carry.forEach(function(x,i){h+='<div style="display:flex;align-items:center"><div style="flex:1">'+bdTick('bb_c_'+i,x.d,esc(x.t))+'</div><button class="del" data-b="cx:'+i+'">\u2715</button></div>'});
+h+='<div class="sub" style="margin:8px 0">Miss hua to double mat karo, kal bas 1-2 chhote kaam pure karo.</div><div class="row" style="margin:0"><button data-b="rec" style="flex:1">Aaj ke baaki kaam list mein daalo</button></div></div>';
+h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Daily timetable</h2><button class="chip" data-b="ed:t">'+(BEDIT?'Done':'Time edit')+'</button></div>';
+TT.forEach(function(x,i){h+=BEDIT?'<div class="row" style="margin:6px 0"><span class="sub" style="flex:1;margin:0;align-self:center">'+esc(x[0])+'</span><input id="bb_ti_'+i+'" value="'+esc(b.times[i])+'" style="max-width:110px;flex:none"></div>':bdTick('bb_t_'+i,c['t'+i],esc(x[0])+'<span class="t">'+esc(b.times[i])+'</span>')});
+h+='</div><div class="card"><h2>Aaj ka workout: '+TYN[ty]+'</h2>';
+if(r.nx){h+='<div class="chips" style="margin-top:6px">'+['Level 1','Level 2','Level 3'].map(function(n,i){return '<button class="chip'+(lv===i?' on':'')+'" data-b="lv:'+i+'">'+n+'</button>'}).join('')+'</div>';WL(ty).forEach(function(k,i){var e=EXD[k];h+=bdTick('bb_x_'+i,c['x'+i],'<b>'+e[0]+'</b><span class="t">'+e[lv+1]+'</span>')});h+='<div class="sub" style="margin:8px 0 0">Sets ke beech 60-90 sec rest. Form saaf rakho; joint, kamar ya seene mein dard ya chakkar ho to ruk jao. Jab 2 hafte saare sets aaraam se hon, tab agla level.</div>'}
+else h+='<div class="sub" style="margin:0">'+(ty==='M'?'Halki walk 15-20 min + stretching. Ye recovery hai, hard workout nahi.':'Aaj rest hai. Paani, khana aur neend par dhyan do, rest mein hi body recover hoti hai.')+'</div>';
+h+='<h2 style="margin-top:14px">Weekly schedule</h2>';DN.forEach(function(n,i){h+='<div class="row" style="margin:6px 0"><span style="width:44px;align-self:center;font-size:14px">'+n+'</span><select id="bb_wd_'+i+'">'+['A','B','M','R'].map(function(k){return '<option value="'+k+'"'+(b.wd[i]===k?' selected':'')+'>'+TYN[k]+'</option>'}).join('')+'</select></div>'});
+h+='<div class="sub" style="margin:6px 0 0">Beginner ke liye hafte mein 3 workout kaafi hain. Roz hard karne se thakan badhti hai.</div></div>';
+h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Khana (andaaze)</h2><button class="chip" data-b="ed:m">'+(MEDIT?'Done':'Portion edit')+'</button></div><div class="sub" style="margin:0">Calories: '+Math.round(r.kcal)+' / '+b.tk+'</div><div class="bar"><i style="width:'+Math.min(100,Math.round(r.kcal*100/b.tk))+'%"></i></div><div class="sub" style="margin:8px 0 0">Protein: '+Math.round(r.pro)+'g / '+b.tp+'g</div><div class="bar"><i style="width:'+Math.min(100,Math.round(r.pro*100/b.tp))+'%"></i></div><div class="row" style="margin:10px 0 2px"><input id="bb_tk" type="number" inputmode="numeric" value="'+b.tk+'"><input id="bb_tp" type="number" inputmode="numeric" value="'+b.tp+'"></div><div class="sub" style="margin:0 0 6px">Upar: kcal target aur protein (g) target, dono badal sakte ho.</div>';
+var gp='';b.meals.forEach(function(m,i){if(m.g!==gp){gp=m.g;h+='<h2 style="margin:10px 0 0;color:var(--mut)">'+esc(gp)+'</h2>'}
+if(MEDIT)h+='<div class="row" style="margin:6px 0 4px"><input id="bb_mn_'+i+'" value="'+esc(m.n)+'"></div><div class="row" style="margin:0 0 6px"><input id="bb_mk_'+i+'" type="number" value="'+m.k+'"><input id="bb_mp_'+i+'" type="number" value="'+m.p+'"></div>';else h+=bdTick('bb_m_'+i,c['m'+i],esc(m.n)+'<span class="t">~'+m.k+' kcal \u00b7 '+m.p+'g protein</span>')});
+h+='<div class="sub" style="margin:8px 0 0">Portion edit mein naam, kcal (pehla box) aur protein g (doosra box) badal sakte ho. Ye andaaze hain, asli maatra alag ho sakti hai.</div></div>';
+h+='<div class="card"><h2>Paani</h2><div style="display:flex;align-items:center;gap:12px;margin-top:6px"><button class="chip" data-b="w:-1">\u2212</button><b style="font-size:22px">'+r.w+' / '+b.tw+' glass</b><button class="chip" data-b="w:1">+</button></div><div class="bar"><i style="width:'+Math.min(100,Math.round(r.w*100/b.tw))+'%"></i></div><div class="row" style="margin:10px 0 0"><input id="bb_tw" type="number" inputmode="numeric" value="'+b.tw+'"><span class="sub" style="align-self:center;margin:0">glass target</span></div></div>';
+h+='<div class="card"><h2>Weekly weight</h2><div class="sub" style="margin:0 0 8px">Hafte mein ek baar, subah khali pet naapo. Roz ka upar-neeche normal hai.</div><div class="row"><input id="bb_w" type="number" step="0.1" inputmode="decimal" placeholder="Weight (kg)"><button data-b="aw">Save</button></div>'+wChart();
+var base=Math.max(0,b.wl.length-6);b.wl.slice(base).forEach(function(x,j){h+='<div style="display:flex;align-items:center;font-size:13px;padding:6px 0;border-top:1px solid var(--bd)"><span style="flex:1">'+fmt(x.d)+'</span><b>'+x.w+' kg</b><button class="del" data-b="dw:'+(base+j)+'" style="margin-left:10px">\u2715</button></div>'});
+h+='</div>'+bdWeek()+bdHist();
+h+='<div class="card"><h2>Sasti food alternatives</h2><div style="font-size:13px;line-height:1.7">Protein: soya chunks, dal, chana, moongfali, besan, doodh/dahi (jo ghar mein ho), anda (agar khate ho).<br>Calories: chawal, roti par thoda tel/ghee, kela, gur, bhuna chana + moongfali.<br>Soya na ho to: dal + chawal ya roti + dahi.<br>Kela na ho to: mausami fruit ya gur + chana.<br>Mehngi supplement ya powder ki zarurat nahi, ghar ka khana kaafi hai.</div></div>';
+document.getElementById("bd").innerHTML=h}
+function bdChange(el){var b=S.bb,a=el.id.slice(3).split('_'),c=b.chk[T]=b.chk[T]||{},v=+el.value,k=a[0];
+if(k==='t'||k==='x'||k==='m')c[k+a[1]]=el.checked;else if(k==='c')b.carry[+a[1]].d=el.checked;else if(k==='ti')b.times[+a[1]]=el.value;else if(k==='mn')b.meals[+a[1]].n=el.value;else if(k==='mk')b.meals[+a[1]].k=v||0;else if(k==='mp')b.meals[+a[1]].p=v||0;else if(k==='tk'){if(v>0)b.tk=v}else if(k==='tp'){if(v>0)b.tp=v}else if(k==='tw'){if(v>0)b.tw=Math.round(v)}else if(k==='wd')b.wd[+a[1]]=el.value;
+save();all()}
+function bdClick(a){var b=S.bb,p=a.split(':'),c=b.chk[T]=b.chk[T]||{},k=p[0];
+if(k==='ed'){if(p[1]==='t')BEDIT=!BEDIT;else MEDIT=!MEDIT}else if(k==='lv')b.lv=+p[1];else if(k==='w')c.w=Math.max(0,(c.w||0)+(+p[1]));
+else if(k==='aw'){var v=parseFloat(document.getElementById('bb_w').value);if(v>20&&v<250){b.wl=b.wl.filter(function(x){return x.d!==T});b.wl.push({d:T,w:v});b.wl.sort(function(x,y){return x.d<y.d?-1:1})}}
+else if(k==='dw')b.wl.splice(+p[1],1);else if(k==='cx')b.carry.splice(+p[1],1);
+else if(k==='rec'){var r=bdCalc(T),add=[];TT.forEach(function(x,i){if(!c['t'+i])add.push(x[0])});WL(r.ty).forEach(function(e,i){if(!c['x'+i])add.push('Workout: '+EXD[e][0])});if(r.w<b.tw)add.push('Paani: '+(b.tw-r.w)+' glass baaki');add.forEach(function(t){if(!b.carry.some(function(x){return x.t===t}))b.carry.push({t:t,d:false})})}
+save();all()}
+var S={day:"",routine:{},syl:[],cy:{},hist:{},start:"",subs:[],sel:"",seeded:false,exam:"2027-02-01"};
+function pad(n){return n<10?"0"+n:""+n}
+function key(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parse(k){var a=k.split("-");return new Date(+a[0],+a[1]-1,+a[2])}
+function fmt(k){return parse(k).toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+function load(){try{var r=localStorage.getItem("focus_v1");if(r){r=JSON.parse(r);for(var k in r)S[k]=r[k]}}catch(e){}}
+function save(){try{localStorage.setItem("focus_v1",JSON.stringify(S))}catch(e){}}
+function doneList(){var a=[];ROUTINE.forEach(function(r,i){if(S.routine[i])a.push(i)});return a}
+load();
+if(S.rt&&S.rt.length===ROUTINE.length)S.rt.forEach(function(r,i){ROUTINE[i]=r});
+var T=key(new Date());
+if(!S.hist)S.hist={};
+if(!S.exam)S.exam="2027-02-01";
+if(!S.study)S.study={};if(!S.tm)S.tm={on:false,t0:0,acc:0};if(!S.qlog)S.qlog={};if(!S.tests)S.tests=[];if(!S.dbt)S.dbt=[];if(!S.plan)S.plan={};if(!S.note)S.note={};if(!S.dj)S.dj={};bbInit();if(!S.sess)S.sess=[];if(!S.goal)S.goal=120;if(!S.tm.dis)S.tm.dis=0;if(!S.cl)S.cl={};
+if(!S.start)S.start=T;
+if(S.day&&S.day!==T)S.hist[S.day]=doneList();
+if(S.day!==T){S.day=T;S.routine={}}
+if(!S.seeded){var pre=[];Object.keys(DEF).forEach(function(k){DEF[k].forEach(function(c){pre.push({s:k,c:c,d:false})})});S.syl=pre.concat(S.syl||[]);S.seeded=true}
+S.hist[T]=doneList();save();
+var calM=parse(T),selDay=T;
+document.getElementById("date").textContent=fmt(T);
+var dn0=Math.round((parse(T)-parse(S.start))/864e5)+1;
+document.getElementById("pl").innerHTML='<i></i>'+(dn0>100?'100 DIN POORE':'DIN '+dn0+'/100 · '+(100-dn0)+' DIN BACHE');
+function esc(x){return String(x).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function prog(d,t,l){var p=t?Math.round(d*100/t):0;return '<div class="card"><h2>'+l+': '+d+'/'+t+' ('+p+'%)</h2><div class="bar"><i style="width:'+p+'%"></i></div></div>'}
+function cnt(k){return (S.hist[k]||[]).length}
+function cls(k){if(k<S.start||k>T)return"";var n=cnt(k);if(n>=ROUTINE.length*0.8)return"ok";return n>0?"part":(k===T?"":"miss")}
+function missedDays(){var out=[],d=parse(T);for(var i=0;i<7;i++){d.setDate(d.getDate()-1);var k=key(d);if(k<S.start)break;if(cnt(k)===0&&dayS(k)===0)out.push(k)}return out}
+function nowSec(){return Math.floor(Date.now()/1000)}
+function tmSec(){var m=S.tm;return m.acc+(m.on?nowSec()-m.t0:0)}
+function fmtT(x){return pad(Math.floor(x/3600))+':'+pad(Math.floor(x%3600/60))+':'+pad(x%60)}
+function fmtH(x){var h=Math.floor(x/3600),m=Math.floor(x%3600/60);return h?h+' ghanta '+m+' min':m+' min'}
+function stxt(){var w=0,d=parse(T);for(var i=0;i<7;i++){w+=S.study[key(d)]||0;d.setDate(d.getDate()-1)}w+=tmSec();return 'Aaj: '+fmtH((S.study[T]||0)+tmSec())+'  ·  Pichle 7 din: '+fmtH(w)}
+var EDIT=false,BK='',BM='',CONF='';
+function tmShow(){var m=S.tm.m||0,e=tmSec();return m?Math.max(0,m*60-e):e}
+function resetTm(){var o=S.tm;S.tm={on:false,t0:0,acc:0,m:o.m||0,sub:o.sub||'',c:o.c||'',dis:0,rs:[]}}
+function finish(ok){var o=S.tm,tg=(o.m||0)*60,sec=Math.min(tmSec(),tg||1e9),br={25:5,45:10,50:10}[o.m];if(sec>=60){S.study[T]=(S.study[T]||0)+sec;S.sess.push({d:T,s:o.sub||'',c:o.c||'',sec:sec,m:o.m||0,ok:!!ok,dis:o.dis||0,r:o.rs||[]});S.msg=ok?'Session poora! Ab '+br+' min break lo, phir agla session.':'Session save ho gaya: '+fmtH(sec)+'. Ab chhota break lo.'}else S.msg='1 min se kam tha, save nahi hua.';resetTm()}
+function chkDone(){if(S.tm.on&&S.tm.m&&tmSec()>=S.tm.m*60){finish(true);save();all()}}
+function timerCard(){var m=S.tm,run=m.on||m.acc>0,h='<div class="card" style="text-align:center"><h2>Focus Mode</h2>';
+if(S.msg)h+='<div class="sub" style="color:var(--ok);font-weight:700;margin:4px 0 8px">'+esc(S.msg)+'</div>';
+if(!run){h+='<div class="chips" style="justify-content:center;margin-top:6px">';[[0,'Stopwatch'],[25,'25 / 5'],[45,'45 / 10'],[50,'50 / 10']].forEach(function(x){h+='<button class="chip'+((m.m||0)===x[0]?' on':'')+'" data-pm="'+x[0]+'">'+x[1]+'</button>'});
+h+='</div><div class="row"><select id="fsub"><option value="">Subject chuno</option>'+subjects().map(function(x){return '<option'+(m.sub===x?' selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select><select id="fch"><option value="">Chapter</option>'+S.syl.filter(function(x){return x.s===m.sub}).map(function(x){return '<option'+(m.c===x.c?' selected':'')+'>'+esc(x.c)+'</option>'}).join('')+'</select></div>'}
+else h+='<div class="sub" style="margin:0">'+esc(m.sub||'Subject nahi chuna')+(m.c?' \u00b7 '+esc(m.c):'')+'</div>';
+h+='<div id="tm" style="font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;margin:6px 0">'+fmtT(tmShow())+'</div><div class="sub" id="tmt" style="margin:0 0 14px">'+stxt()+'</div><div class="row" style="margin:0">'+(m.on?'<button data-tm="pause" style="flex:1">Pause</button>':'<button data-tm="start" style="flex:1">'+(m.acc?'Resume':'Start')+'</button>')+(run?'<button data-tm="stop" style="flex:1;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);box-shadow:none">Stop + Save</button><button data-tm="reset" style="background:var(--card);color:var(--mut);border:1.5px solid var(--bd);box-shadow:none">Reset</button>':'')+'</div>';
+if(run)h+='<div class="row" style="margin:10px 0 0"><input id="dsr" placeholder="Distraction reason (optional)"><button data-tm="dis">Phone uthaya ('+(m.dis||0)+')</button></div>';
+return h+'</div>'}
+function goalCard(){var g=S.goal||120,m=Math.round(dayS(T)/60),p=Math.min(100,Math.round(m*100/g));return '<div class="card"><h2>Aaj ka minimum target</h2><div class="sub" style="margin:0 0 4px">'+m+' / '+g+' min padhai '+(m>=g?'\u00b7 Minimum pura ho gaya!':'\u00b7 bas '+(g-m)+' min aur')+'</div><div class="bar"><i style="width:'+p+'%"></i></div><div class="row" style="margin:10px 0 0"><input id="goal" type="number" inputmode="numeric" value="'+g+'"><span class="sub" style="align-self:center;margin:0">min/din, har hafte thoda badhao</span></div></div>'}
+function subjLine(rows){var sb={},n=0,ds=0;S.sess.forEach(function(x){if(rows.indexOf(x.d)>=0){var k=x.s||'Subject nahi';sb[k]=(sb[k]||0)+x.sec;n++;ds+=x.dis||0}});var ks=Object.keys(sb);return '<div class="sub" style="margin:6px 0 0">Focus sessions: '+n+' \u00b7 Phone distraction: '+ds+(ks.length?'<br>Subject-wise: '+ks.map(function(z){return esc(z)+' '+fmtH(sb[z])}).join(' \u00b7 '):'')+'</div>'}
+function bkCard(){return '<div class="card"><h2>Backup / Restore</h2><div class="sub" style="margin:0 0 8px">Data sirf is phone mein hai. Backup text copy karke Notes ya WhatsApp mein khud ko bhej do.</div><div class="row"><button id="bk" style="flex:1">Backup banao</button><button id="cp" style="background:var(--card);color:var(--tx);border:1.5px solid var(--bd);box-shadow:none">Copy</button></div><textarea id="bkt" rows="4" placeholder="Backup yahan aayega. Restore ke liye purana backup yahan paste karo." style="width:100%;padding:12px;border:1.5px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);font-size:12px">'+esc(BK)+'</textarea><div class="row" style="margin:8px 0"><button id="rs" style="flex:1">'+(CONF==='rs'?'Haan, restore karo':'Restore')+'</button><button id="clr" style="flex:1;background:var(--card);color:var(--bad);border:1.5px solid var(--bd);box-shadow:none">'+(CONF==='clr'?'Haan, sab mitao':'Sab data saaf')+'</button></div><div class="sub" style="margin:0">'+esc(BM)+'</div></div>'}
+function renderAaj(){
+var d=cnt(T),h="",m=missedDays();
+var dl=Math.round((parse(S.exam)-parse(T))/864e5),rem=S.syl.filter(function(x){return !(x.d&&x.p&&(x.q||0)>=(x.t||100))}).length,sd=Math.max(1,dl-25),pd=Math.ceil(rem/sd);
+h+='<div class="card" style="text-align:center"><div class="sub" style="margin:0">Meri exam date: '+fmt(S.exam)+'</div>';
+if(dl>0){h+='<div style="font-size:44px;font-weight:700;color:var(--ac);line-height:1.1">'+dl+'</div><div style="font-size:15px">din bache ('+Math.floor(dl/7)+' hafte '+(dl%7)+' din)</div>';
+h+='<div class="sub" style="margin:8px 0 0">Bache chapters: '+rem+(rem?' → last 25 din revision ke liye chhodke roz <b>~'+pd+' chapter</b> karna hai':' sab ho gaye')+'</div>'}
+else h+='<div style="font-size:20px;font-weight:700;margin:8px 0">'+(dl===0?'Aaj exam hai, all the best!':'Exam shuru ho chuka hai')+'</div>';
+h+='<div class="row" style="margin:10px 0 0"><input type="date" id="exam" value="'+S.exam+'"></div></div>';
+h+=timerCard();
+if(m.length){h+='<div class="card warn"><h2>Khaali rahe din (koi baat nahi, aaj se wapas shuru)</h2>';m.forEach(function(k){h+='<button data-go="'+k+'">❌ '+fmt(k)+' ('+cnt(k)+'/'+ROUTINE.length+' hue)</button>'});h+='</div>'}
+h+=planCard()+goalCard()+prog(d,ROUTINE.length,"Aaj ka progress")+'<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Aaj ka routine</h2><button class="chip" data-ed="1">'+(EDIT?'Done':'Time edit')+'</button></div>';
+ROUTINE.forEach(function(r,i){var c=S.routine[i];if(EDIT)h+='<div class="row" style="margin:6px 0"><input id="rn'+i+'" value="'+esc(r[0])+'"><input id="rt'+i+'" value="'+esc(r[1])+'" style="max-width:110px;flex:none"></div>';else h+='<label class="it'+(c?' done':'')+'"><input type="checkbox" data-k="r'+i+'"'+(c?' checked':'')+'><span class="x">'+esc(r[0])+'<span class="t">'+esc(r[1])+'</span></span></label>'});
+document.getElementById("aaj").innerHTML=h+'</div>';
+}
+function subjects(){var a=[];S.syl.forEach(function(x){if(a.indexOf(x.s)<0)a.push(x.s)});S.subs.forEach(function(x){if(a.indexOf(x)<0)a.push(x)});return a}
+var OD={};
+var QB={
+'Electric Charges and Fields':['State Coulomb law and write it in vector form.','Two point charges of 2 uC and 3 uC are 10 cm apart in vacuum. Find the force between them.','Write the SI unit and dimensional formula of electric field.','Define electric field intensity. Is it a scalar or a vector?','Draw electric field lines for a positive point charge and for an electric dipole.','Write four properties of electric field lines.','Define electric dipole moment. Give its SI unit and direction.','Derive the electric field at a point on the axial line of a short dipole.','Derive the electric field at a point on the equatorial line of a short dipole.','Find the torque on a dipole in a uniform electric field and its potential energy.','State Gauss law and write its mathematical form.','Using Gauss law, derive the field due to an infinitely long straight charged wire.','Using Gauss law, derive the field due to an infinite plane sheet of charge.','Using Gauss law, derive the field due to a uniformly charged thin spherical shell (inside and outside).','What is the net electric flux through a closed surface enclosing no net charge? Why?','Why can two electric field lines never cross each other?','A charge of 5 uC is placed in a field of 2000 N/C. Find the force on it.','What is quantisation of charge? Write the formula.','Why does a charged body attract light uncharged objects? Explain.','A cube of side a is placed in a uniform field E parallel to one of its faces. Find the net flux through the cube.'],
+'Solutions':['Define a solution. Give the types of solutions with one example each.','Define molarity, molality and mole fraction. Which of them depend on temperature?','Find the molarity of a solution containing 5 g NaOH in 450 mL of solution (M of NaOH = 40).','State Henry law. Give two applications.','State Raoult law for a solution of volatile liquids.','What are ideal and non-ideal solutions? Give examples of positive and negative deviation.','What are azeotropes? Name their types.','What are colligative properties? List the four of them.','Explain relative lowering of vapour pressure.','Derive the relation between elevation in boiling point and molality.','What is the cryoscopic constant? Why is ethylene glycol used as antifreeze?','Define osmosis and osmotic pressure. Write the van t Hoff equation for dilute solutions.','What are isotonic, hypertonic and hypotonic solutions?','What is reverse osmosis? Give one use.','Define van t Hoff factor. What is its value for NaCl and K2SO4 if fully dissociated?','Why do association and dissociation give abnormal molar masses?','18 g glucose (M = 180) is dissolved in 1 kg water. Find the elevation in boiling point (Kb = 0.52 K kg/mol).','Why does 1 M NaCl show a larger freezing point depression than 1 M glucose?','Why does the solubility of gases in liquids decrease with rise in temperature?','Why is osmotic pressure preferred for finding molar mass of polymers?'],
+'Relations and Functions':['Define a relation. Explain reflexive, symmetric and transitive relations.','Define an equivalence relation with an example.','Show that R = {(a,b): a <= b} on real numbers is reflexive and transitive but not symmetric.','Show that aRb if (a - b) is divisible by 5 on integers is an equivalence relation.','Show that the relation is parallel to on the set of lines is an equivalence relation.','Show that the relation is perpendicular to on the set of lines is symmetric only.','Define a function. What are domain, codomain and range?','Define one-one, onto and bijective functions.','Show that f: R to R, f(x) = 3x + 5 is bijective.','Show that f: R to R, f(x) = x squared is neither one-one nor onto.','Show that f: N to N, f(x) = 2x is one-one but not onto.','Show that f: R to R, f(x) = |x| is neither one-one nor onto.','Show that f: R to R, f(x) = x cubed is bijective.','If f(x) = 2x and g(x) = x + 3, find fog and gof.','What is an invertible function? State the condition for invertibility.','Find the inverse of f(x) = (3x + 4) / 5.','If f: A to B and g: B to C are both one-one, show that gof is one-one.','How many functions are possible from a set of 3 elements to a set of 2 elements? How many of them are onto?','Check whether f: R to R, f(x) = sin x is one-one or onto.','Define a binary operation. Show that a*b = a + 2b on R is not commutative.']
+};
+function qlist(x,i){var L=QB[x.c];if(!L)return '';var dn=(S.qd&&S.qd[x.c])||[];var h='<details data-od="'+i+'"'+(OD[i]?' open':'')+'><summary style="font-size:13px;padding:8px 0">Practice questions ('+dn.length+'/'+L.length+')</summary>';L.forEach(function(q,j){var c=dn.indexOf(j)>=0;h+='<label class="it'+(c?' done':'')+'"><input type="checkbox" data-k="z'+i+'_'+j+'"'+(c?' checked':'')+'><span class="x">'+(j+1)+'. '+esc(q)+'</span></label>'});return h+'</details>'}
+function renderSyl(){
+var subs=subjects();if(subs.indexOf(S.sel)<0)S.sel=subs[0]||"";
+var d=0;S.syl.forEach(function(x){if(x.d)d++});
+var N=S.syl.length,sc=0,pc=0,pyc=0,qt=0,fu=0;S.syl.forEach(function(x){var t=x.t||100;sc+=(x.d?40:0)+(x.p?20:0)+40*Math.min(1,(x.q||0)/t);if(x.d)pc++;if(x.p)pyc++;qt+=x.q||0;if(x.d&&x.p&&(x.q||0)>=t)fu++});
+var ov=N?Math.round(sc/N):0,dn=Math.round((parse(T)-parse(S.start))/864e5)+1;
+var h='<div class="card"><h2>Tayari: '+ov+'% <span class="sub">(Target 80%)</span></h2><div class="bar"><i style="width:'+ov+'%"></i></div><div class="sub" style="margin:6px 0 0">'+(ov>=80?'Target pura! Ab revision karo.':'Aur '+(80-ov)+'% chahiye')+' · Din '+Math.min(dn,100)+'/100</div><div class="sub" style="margin:4px 0 0">✅ Pura chapter: '+fu+'/'+N+' · Padhe: '+pc+' · PYQ: '+pyc+' · Questions: '+qt+'</div><div class="sub" style="margin:4px 0 0">Score: padhna 40% + PYQ 20% + questions 40%</div></div><div class="chips">';
+subs.forEach(function(s){var t=0,n=0;S.syl.forEach(function(x){if(x.s===s){t++;if(x.d)n++}});h+='<button class="chip'+(s===S.sel?' on':'')+'" data-sub="'+esc(s)+'">'+esc(s)+' '+n+'/'+t+'</button>'});
+h+='</div><div class="card">';
+if(S.sel){h+='<h2>'+esc(S.sel)+'</h2><div class="row"><input id="chp" placeholder="Naya chapter"><button id="add">+</button></div>';
+var any=false;S.syl.forEach(function(x,i){if(x.s!==S.sel)return;any=true;var q=x.q||0,t=x.t||100,full=x.d&&x.p&&q>=t;
+h+='<div class="ch'+(full?' full':'')+'"><div class="chh"><b>'+(full?'✓ ':'')+esc(x.c)+'</b><button class="del" data-del="'+i+'">✕</button></div>'
++'<label class="it"><input type="checkbox" data-k="s'+i+'"'+(x.d?' checked':'')+'><span class="x">Padh liya (theory + notes)</span></label>'
++'<label class="it"><input type="checkbox" data-k="p'+i+'"'+(x.p?' checked':'')+'><span class="x">PYQ kiye</span></label>'
++'<div class="qr"><span>Questions: <b>'+q+'</b>/'+t+'</span><span><button class="qb" data-q="'+i+',-10">-10</button><button class="qb" data-q="'+i+',1">+1</button><button class="qb" data-q="'+i+',10">+10</button></span></div><div class="bar"><i style="width:'+Math.min(100,Math.round(q*100/t))+'%"></i></div>'+qlist(x,i)+'</div>'});
+if(!any)h+='<div class="sub">Abhi koi chapter nahi.</div>'}
+h+='<div class="row" style="margin-top:10px"><input id="nsub" placeholder="Naya subject (jaise English)"><button id="addsub">+</button></div></div>';
+document.getElementById("syl").innerHTML=h;
+}
+function tomorrow(){var d=parse(T);d.setDate(d.getDate()+1);return key(d)}
+function planCard(){var p=S.plan[T]||[];if(!p.length)return '';var h='<div class="card"><h2>Aaj ke Top tasks</h2>';p.forEach(function(x,i){h+='<label class="it'+(x.d?' done':'')+'"><input type="checkbox" data-k="k'+i+'"'+(x.d?' checked':'')+'><span class="x">'+esc(x.t)+'</span></label>'});return h+'<div class="row" style="margin:8px 0 0"><button data-rs="1" style="flex:1;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);box-shadow:none">Baaki tasks kal ke liye bhejo</button></div></div>'}
+function renderCy(){
+var tm=tomorrow(),dn=S.hist[T]||[],p=S.plan[T]||[],pn=S.plan[tm]||[];
+var h='<div class="card"><h2>Aaj ka hisaab</h2><div class="sub" style="margin:0 0 8px">'+fmt(T)+'</div><div style="font-size:14px;line-height:1.7">Padhai: <b>'+fmtH(dayS(T))+'</b><br>Routine kaam: <b>'+dn.length+'/'+ROUTINE.length+'</b><br>Questions: <b>'+(S.qlog[T]||0)+'</b> \u00b7 Chapter padhe: <b>'+(S.cl[T]||0)+'</b>'+(p.length?'<br>Mere tasks: <b>'+p.filter(function(x){return x.d}).length+'/'+p.length+'</b>':'')+'</div>';
+var ok='',no='',st='font-size:13px;padding:3px 0;';
+ROUTINE.forEach(function(r,i){if(dn.indexOf(i)>=0)ok+='<div style="'+st+'">\u2713 '+esc(r[0])+'</div>';else no+='<div style="'+st+'color:var(--bad)">\u2717 '+esc(r[0])+'</div>'});
+p.forEach(function(x){if(x.d)ok+='<div style="'+st+'">\u2713 '+esc(x.t)+'</div>';else no+='<div style="'+st+'color:var(--bad)">\u2717 '+esc(x.t)+'</div>'});
+h+='<h2 style="margin-top:12px">Kya kiya</h2>'+(ok||'<div class="sub">Abhi kuch nahi</div>')+'<h2 style="margin-top:12px">Baaki raha</h2>'+(no||'<div class="sub">Sab ho gaya!</div>')+'</div>';
+h+='<div class="card"><h2>Kal ke Top 3 tasks</h2><div class="sub" style="margin:0 0 8px">'+fmt(tm)+'</div><div class="row"><input id="pl1" placeholder="Kal kya karna hai?"><button id="addplan">+</button></div>';
+pn.forEach(function(x,i){h+='<div style="display:flex;align-items:center;padding:9px 0;border-top:1px solid var(--bd);font-size:14px"><span style="flex:1">'+esc(x.t)+'</span><button class="del" data-pd="'+i+'">\u2715</button></div>'});
+h+='</div><div class="card"><h2>Aaj ki diary</h2><textarea id="note" rows="5" placeholder="Aaj kaisa raha? Kya seekha? Kya mushkil laga?" style="width:100%;padding:12px;border:1.5px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);font:500 15px DM Sans,system-ui,sans-serif;resize:vertical">'+esc(S.note[T]||'')+'</textarea><div class="row" style="margin:10px 0 0"><button id="savenote" style="flex:1">Diary save karo</button></div></div>';
+h+='</div><div class="card"><h2>Aaj ka check-in</h2>';var dj=S.dj[T]||{};
+['mood','en'].forEach(function(f){h+='<div class="sub" style="margin:0 0 4px">'+(f==='mood'?'Mood (1 kharab - 5 badhiya)':'Energy (1 kam - 5 zyada)')+'</div><div class="chips">';[1,2,3,4,5].forEach(function(n){h+='<button class="chip'+(dj[f]===n?' on':'')+'" data-mo="'+f+n+'">'+n+'</button>'})
+h+='</div>'});
+h+='<div class="row"><input id="djd" placeholder="Aaj ki sabse badi dikkat" value="'+esc(dj.dif||'')+'"></div><div class="row"><input id="djr" placeholder="Phone distraction / taalne ka reason" value="'+esc(dj.dr||'')+'"></div><div class="row" style="margin:0"><input id="dji" placeholder="Kal ke liye ek practical sudhar" value="'+esc(dj.imp||'')+'"></div></div>';
+var ks={};Object.keys(S.note).concat(Object.keys(S.plan),Object.keys(S.dj)).forEach(function(k){if(k<T)ks[k]=1});var ds=Object.keys(ks).sort().reverse().filter(function(k){if(!S.sq)return true;var j=S.dj[k]||{};return ((S.note[k]||'')+' '+(S.plan[k]||[]).map(function(x){return x.t}).join(' ')+' '+[j.dif,j.dr,j.imp].join(' ')).toLowerCase().indexOf(S.sq.toLowerCase())>=0}).slice(0,S.sq?60:14);
+{h+='<div class="card"><h2>Purani diary</h2><div class="row"><input id="dsrch" placeholder="Diary mein dhundo" value="'+esc(S.sq||'')+'"></div>';ds.forEach(function(k){var pl=S.plan[k]||[];h+='<div style="padding:10px 0;border-top:1px solid var(--bd);font-size:13px"><b>'+fmt(k)+'</b><div class="sub" style="margin:2px 0 4px">Padhai '+fmtH(dayS(k))+' \u00b7 Kaam '+cnt(k)+'/'+ROUTINE.length+'</div>';pl.forEach(function(x){h+='<div style="padding:2px 0;color:'+(x.d?'var(--ok)':'var(--bad)')+'">'+(x.d?'\u2713 ':'\u2717 ')+esc(x.t)+'</div>'});var j=S.dj[k]||{};if(j.mood)h+='<div class="sub" style="margin:2px 0">Mood '+j.mood+'/5 \u00b7 Energy '+(j.en||'-')+'/5</div>';[['Dikkat',j.dif],['Distraction',j.dr],['Sudhar',j.imp]].forEach(function(z){if(z[1])h+='<div style="margin-top:2px">'+z[0]+': '+esc(z[1])+'</div>'});if(S.note[k])h+='<div style="margin-top:4px;white-space:pre-wrap">'+esc(S.note[k])+'</div>';h+='</div>'});h+='</div>'}
+h+=bkCard();document.getElementById("cy").innerHTML=h;
+}
+function dayS(k){return (S.study[k]||0)+(k===T?tmSec():0)}
+function progCard(){var d=parse(T),rows=[],tot=0,best=0,k,i,v;for(i=0;i<7;i++){k=key(d);rows.push(k);v=dayS(k);tot+=v;best=Math.max(best,v);d.setDate(d.getDate()-1)}var mx=Math.max(1,best),tod=dayS(T),yes=dayS(rows[1]),df=tod-yes,st=0,dd=parse(T);if(tod===0)dd.setDate(dd.getDate()-1);while(key(dd)>=S.start&&dayS(key(dd))>0&&st<400){st++;dd.setDate(dd.getDate()-1)}
+var h='<div class="card"><h2>Padhai progress</h2><div class="sub" style="margin:0 0 4px">Kal: '+fmtH(yes)+' · Aaj: '+fmtH(tod)+'</div><div style="font-size:14px;font-weight:700;margin-bottom:10px;color:'+(df>=0?'var(--ok)':'var(--mut)')+'">'+(df>=0?'Kal se '+fmtH(df)+' zyada':'Kal se '+fmtH(-df)+' kam')+'</div>';
+rows.slice().reverse().forEach(function(k){var v=dayS(k),p=Math.round(v*100/mx);h+='<div style="display:flex;align-items:center;gap:8px;font-size:12px;margin:6px 0"><span style="width:58px;color:var(--mut)">'+parse(k).toLocaleDateString('en-IN',{weekday:'short',day:'numeric'})+'</span><div class="bar" style="flex:1;margin:0"><i style="width:'+p+'%"></i></div><span style="width:70px;text-align:right">'+fmtH(v)+'</span></div>'});
+h+='<div class="sub" style="margin:10px 0 0">Is hafte: '+fmtH(tot)+' · Average: '+fmtH(Math.round(tot/7))+'/din · Best: '+fmtH(best)+' · Streak: '+st+' din</div>'+subjLine(rows)+'</div><div class="card"><h2>Din ka hisaab</h2>';
+rows.forEach(function(k){h+='<div style="padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px"><b>'+fmt(k)+'</b><div class="sub" style="margin:2px 0 0">Padhai '+fmtH(dayS(k))+' · Kaam '+cnt(k)+'/'+ROUTINE.length+' · Questions '+((S.qlog&&S.qlog[k])||0)+' · Chapter '+((S.cl&&S.cl[k])||0)+'</div></div>'});
+return h+'</div>'}
+function renderCal(){
+var y=calM.getFullYear(),mo=calM.getMonth(),first=new Date(y,mo,1).getDay(),dim=new Date(y,mo+1,0).getDate();
+var h=progCard()+'<div class="card"><div class="nav"><button data-m="-1">‹</button><b>'+calM.toLocaleDateString("en-IN",{month:"long",year:"numeric"})+'</b><button data-m="1">›</button></div><div class="cal">';
+["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(function(x){h+='<div class="h">'+x+'</div>'});
+for(var i=0;i<first;i++)h+='<div></div>';
+for(var d=1;d<=dim;d++){var k=y+"-"+pad(mo+1)+"-"+pad(d);h+='<button data-day="'+k+'" class="'+cls(k)+(k===T?' tdy':'')+(k===selDay?' sel':'')+'">'+d+'</button>'}
+h+='</div><div class="leg"><span class="lg ok"></span>Pura (80%+)<span class="lg part"></span>Adhura<span class="lg miss"></span>Chhut gaya</div></div><div class="card"><h2>'+fmt(selDay)+'</h2>';
+if(selDay<S.start)h+='<div class="sub">App shuru hone se pehle ka din.</div>';
+else if(selDay>T)h+='<div class="sub">Aane wala din.</div>';
+else{var dn=S.hist[selDay]||[],n=dn.length;
+h+='<div class="sub">'+(n===0&&selDay<T?'Is din kuch record nahi hua.':n+'/'+ROUTINE.length+' kaam hue')+'</div>';
+h+='<div class="sub">Padhai ka time: '+fmtH((S.study[selDay]||0)+(selDay===T?tmSec():0))+'</div>';
+ROUTINE.forEach(function(r,i){if(dn.indexOf(i)<0)h+='<div style="font-size:13px;padding:3px 0">'+(selDay<T?'✗ ':'○ ')+esc(r[0])+' <span class="sub">'+esc(r[1])+'</span></div>'})}
+document.getElementById("cal").innerHTML=h+'</div>';
+}
+function all(){renderAaj();renderSyl();renderCy();renderCal();renderBd()}
+function tab(id){["aaj","syl","cy","cal","bd"].forEach(function(x){document.getElementById(x).hidden=x!==id});document.querySelectorAll(".tabs button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-t")===id)})}
+document.addEventListener("change",function(e){
+var id0=e.target.id||"";
+if(id0.indexOf("bb_")===0){bdChange(e.target);return}
+if(id0==="fsub"){S.tm.sub=e.target.value;S.tm.c="";save();all();return}
+if(id0==="fch"){S.tm.c=e.target.value;save();return}
+if(id0==="goal"){var gv=parseInt(e.target.value);if(gv>0){S.goal=gv;save();all()}return}
+if(id0==="dsrch"){S.sq=e.target.value.trim();save();all();return}
+if(/^dj[dri]$/.test(id0)){(S.dj[T]=S.dj[T]||{})[{djd:"dif",djr:"dr",dji:"imp"}[id0]]=e.target.value;save();return}
+if(/^r[nt]\d+$/.test(id0)){var ri=+id0.slice(2);ROUTINE[ri][id0[1]==="n"?0:1]=e.target.value;S.rt=ROUTINE.map(function(r){return [r[0],r[1]]});save();return}
+if(e.target.id==="note"){S.note[T]=e.target.value;save();return}
+if(e.target.id==="exam"){if(e.target.value){S.exam=e.target.value;save();all()}return}
+var k=e.target.getAttribute&&e.target.getAttribute("data-k");if(!k)return;
+if(k[0]==="z"){var pz=k.slice(1).split("_"),cx=S.syl[+pz[0]],jj=+pz[1];S.qd=S.qd||{};var arr=S.qd[cx.c]=S.qd[cx.c]||[],ix=arr.indexOf(jj);if(e.target.checked){if(ix<0){arr.push(jj);cx.q=(cx.q||0)+1;S.qlog[T]=(S.qlog[T]||0)+1}}else if(ix>=0){arr.splice(ix,1);cx.q=Math.max(0,(cx.q||0)-1);S.qlog[T]=Math.max(0,(S.qlog[T]||0)-1)}save();all();return}
+var i=+k.slice(1),v=e.target.checked;
+if(k[0]==="r"){S.routine[i]=v;S.hist[T]=doneList()}else if(k[0]==="k")S.plan[T][i].d=v;else if(k[0]==="b")S.dbt[i].done=v;else if(k[0]==="p")S.syl[i].p=v;else{S.syl[i].d=v;S.cl[T]=Math.max(0,(S.cl[T]||0)+(v?1:-1))}
+save();all();
+});
+document.addEventListener("click",function(e){
+var t=e.target,g=function(a){return t.getAttribute&&t.getAttribute(a)};
+if(g("data-t"))tab(g("data-t"));
+else if(g("data-sub")){S.sel=g("data-sub");save();renderSyl()}
+else if(t.id==="add"){var c=document.getElementById("chp").value.trim();if(c){S.syl.push({s:S.sel,c:c,d:false});save();all()}}
+else if(t.id==="addsub"){var n=document.getElementById("nsub").value.trim();if(n){if(S.subs.indexOf(n)<0)S.subs.push(n);S.sel=n;save();all()}}
+else if(g("data-del")!==null&&t.className==="del"){e.preventDefault();S.syl.splice(+g("data-del"),1);save();all()}
+else if(t.id==="addplan"){var pv=document.getElementById("pl1").value.trim();if(pv&&(S.plan[tomorrow()]||[]).length>=3){S.msg2=1}else if(pv){var tk=tomorrow();(S.plan[tk]=S.plan[tk]||[]).push({t:pv,d:false});save();all()}}
+else if(t.id==="savenote"){S.note[T]=document.getElementById("note").value;save();all()}
+else if(g("data-pd")!==null){S.plan[tomorrow()].splice(+g("data-pd"),1);save();all()}
+else if(t.id==="addtest"){var mk=parseFloat(document.getElementById("tmk").value),tt=parseFloat(document.getElementById("ttot").value);if(mk>=0&&tt>0&&mk<=tt){S.tests.push({d:T,s:document.getElementById("tsub").value,n:document.getElementById("tnm").value.trim(),m:mk,t:tt});save();all()}}
+else if(t.id==="adddb"){var dq=document.getElementById("dq").value.trim();if(dq){S.dbt.push({s:document.getElementById("dsub").value,q:dq,done:false});save();all()}}
+else if(g("data-dt")!==null){S.tests.splice(+g("data-dt"),1);save();all()}
+else if(g("data-dd")!==null){S.dbt.splice(+g("data-dd"),1);save();all()}
+else if(g("data-b")){bdClick(g("data-b"))}
+else if(g("data-pm")!==null){if(!S.tm.on&&!S.tm.acc){S.tm.m=+g("data-pm");S.msg="";save();all()}}
+else if(g("data-tm")){var a2=g("data-tm"),n2=nowSec();if(a2==="start"){S.tm.on=true;S.tm.t0=n2;S.msg=""}else if(a2==="pause"){if(S.tm.on){S.tm.acc+=n2-S.tm.t0;S.tm.on=false}}else if(a2==="dis"){S.tm.dis=(S.tm.dis||0)+1;var rr=document.getElementById("dsr");if(rr&&rr.value.trim())(S.tm.rs=S.tm.rs||[]).push(rr.value.trim())}else if(a2==="reset"){resetTm();S.msg="Session reset, kuch save nahi hua."}else{finish(false)}save();all()}
+else if(g("data-ed")){EDIT=!EDIT;all()}
+else if(g("data-rs")){var tk2=tomorrow(),u=(S.plan[T]||[]).filter(function(x){return !x.d});S.plan[tk2]=(S.plan[tk2]||[]).concat(u.map(function(x){return{t:x.t,d:false}}));S.plan[T]=(S.plan[T]||[]).filter(function(x){return x.d});save();all()}
+else if(g("data-mo")){var mo=g("data-mo"),f0=mo.slice(0,-1);(S.dj[T]=S.dj[T]||{})[f0]=+mo.slice(-1);save();all()}
+else if(t.id==="bk"){BK=JSON.stringify(S);BM="Backup ban gaya. Copy dabao aur kahin save kar lo.";CONF="";all()}
+else if(t.id==="cp"){var ta=document.getElementById("bkt");ta.select();try{navigator.clipboard.writeText(ta.value);BM="Copy ho gaya."}catch(x){BM="Text select hai, khud copy kar lo."}BK=ta.value;all()}
+else if(t.id==="rs"){var txt=document.getElementById("bkt").value.trim();BK=txt;var o;try{o=JSON.parse(txt)}catch(x){o=null}if(!o||typeof o!=="object"||!o.syl||!o.hist){BM="Ye sahi backup nahi hai. Poora backup text paste karo.";CONF=""}else if(CONF!=="rs"){CONF="rs";BM="Pakka? Abhi ka sab data is backup se badal jayega. Dobara Restore dabao."}else{try{localStorage.setItem("focus_v1",txt);BM="Restore ho gaya. App dobara khol lo.";CONF="";location.reload()}catch(x){BM="Restore nahi hua."}}all()}
+else if(t.id==="clr"){if(CONF!=="clr"){CONF="clr";BM="Pakka? Sab data hamesha ke liye mit jayega. Dobara dabao."}else{try{localStorage.removeItem("focus_v1");location.reload()}catch(x){BM="Nahi hua."}CONF=""}all()}
+else if(g("data-q")){var a=g("data-q").split(","),c2=S.syl[+a[0]];c2.q=Math.max(0,(c2.q||0)+(+a[1]));S.qlog[T]=Math.max(0,(S.qlog[T]||0)+(+a[1]));save();all()}
+else if(g("data-day")){selDay=g("data-day");renderCal()}
+else if(g("data-m")){calM=new Date(calM.getFullYear(),calM.getMonth()+(+g("data-m")),1);renderCal()}
+else if(g("data-go")){selDay=g("data-go");calM=parse(selDay);renderCal();tab("cal")}
+});
+setInterval(function(){var e=document.getElementById("tm");if(e){e.textContent=fmtT(tmShow());chkDone();var t=document.getElementById("tmt");if(t)t.textContent=stxt()}},1000);
+document.addEventListener("toggle",function(e){var o=e.target.getAttribute&&e.target.getAttribute("data-od");if(o!==null&&o!==undefined)OD[o]=e.target.open},true);
+chkDone();
+all();
+</script>
+</body>
+</html>
